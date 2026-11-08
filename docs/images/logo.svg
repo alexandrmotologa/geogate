@@ -1,0 +1,167 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <clipPath id="squircle-clip">
+      <rect x="24" y="24" width="976" height="976" rx="220" />
+    </clipPath>
+
+    <!-- Gradients -->
+    <linearGradient id="cyan-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f5ff"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+
+    <linearGradient id="falcon-crown" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#475569"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+
+    <linearGradient id="beak-light" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#94a3b8"/>
+      <stop offset="100%" stop-color="#475569"/>
+    </linearGradient>
+
+    <linearGradient id="beak-dark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+
+    <linearGradient id="gate-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+
+    <filter id="subtle-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#000000" flood-opacity="0.14" />
+    </filter>
+  </defs>
+
+  <!-- Luxury White Squircle Container -->
+  <rect x="24" y="24" width="976" height="976" rx="220" fill="#ffffff" stroke="#e2e8f0" stroke-width="6" />
+
+  <g clip-path="url(#squircle-clip)">
+    <g transform="translate(512, 512)" filter="url(#subtle-shadow)">
+
+      <!-- Hexagonal Architectural Gateway Frame -->
+      <polygon points="
+        0,-395
+        342,-197.5
+        342,197.5
+        0,395
+        -342,197.5
+        -342,-197.5
+      " fill="none" stroke="#0f172a" stroke-width="38" stroke-linejoin="round" />
+
+      <!-- Inner Geodetic Compass / Telemetry Ring -->
+      <polygon points="
+        0,-355
+        307,-177
+        307,177
+        0,355
+        -307,177
+        -307,-177
+      " fill="none" stroke="#00f5ff" stroke-width="3.5" opacity="0.45" stroke-dasharray="14, 10" />
+
+      <!-- Geodetic Meridian Latitude Cross -->
+      <line x1="-315" y1="0" x2="-230" y2="0" stroke="#0284c7" stroke-width="3" opacity="0.4" />
+      <line x1="230" y1="0" x2="315" y2="0" stroke="#0284c7" stroke-width="3" opacity="0.4" />
+      <line x1="0" y1="-365" x2="0" y2="-300" stroke="#0284c7" stroke-width="3" opacity="0.4" />
+      <line x1="0" y1="300" x2="0" y2="365" stroke="#0284c7" stroke-width="3" opacity="0.4" />
+
+      <!-- 100% Watertight Base Silhouette: Falcon Sentinel Body & Wings -->
+      <path d="
+        M 0 -270
+        C 50 -270 95 -235 125 -190
+        L 210 -100
+        L 260 20
+        L 275 140
+        L 210 240
+        L 140 310
+        L 0 340
+        L -140 310
+        L -210 240
+        L -275 140
+        L -260 20
+        L -210 -100
+        L -125 -190
+        C -95 -235 -50 -270 0 -270
+        Z
+      " fill="#0b0f19" />
+
+      <!-- Low-Poly Facets: Aerodynamic Outer Wing Mantle (Left & Right) -->
+      <!-- Left Outer Wing -->
+      <polygon points="-125,-190 -210,-100 -160,-20 -90,-80" fill="#1e293b" />
+      <polygon points="-210,-100 -260,20 -200,60 -160,-20" fill="#0f172a" />
+      <polygon points="-260,20 -275,140 -210,140 -200,60" fill="#1e293b" />
+      <polygon points="-275,140 -210,240 -160,200 -210,140" fill="#0f172a" />
+      <polygon points="-210,240 -140,310 -100,240 -160,200" fill="#1e293b" />
+
+      <!-- Right Outer Wing (Symmetrical) -->
+      <polygon points="125,-190 210,-100 160,-20 90,-80" fill="#334155" />
+      <polygon points="210,-100 260,20 200,60 160,-20" fill="#1e293b" />
+      <polygon points="260,20 275,140 210,140 200,60" fill="#334155" />
+      <polygon points="275,140 210,240 160,200 210,140" fill="#1e293b" />
+      <polygon points="210,240 140,310 100,240 160,200" fill="#334155" />
+
+      <!-- Falcon Craniofacial Crest & Forehead (Centrally Symmetrical) -->
+      <polygon points="0,-270 -65,-215 0,-185" fill="#334155" />
+      <polygon points="0,-270 65,-215 0,-185" fill="#475569" />
+      <polygon points="-65,-215 -125,-190 -90,-140 0,-185" fill="#1e293b" />
+      <polygon points="65,-215 125,-190 90,-140 0,-185" fill="#334155" />
+
+      <!-- Brow Ridge & Supraorbital Armor Plates -->
+      <polygon points="0,-185 -90,-140 -60,-100 0,-130" fill="#0f172a" />
+      <polygon points="0,-185 90,-140 60,-100 0,-130" fill="#1e293b" />
+
+      <!-- Malar Facial Facets (Cheeks) -->
+      <polygon points="-90,-140 -160,-20 -90,-80 -60,-100" fill="#1e293b" />
+      <polygon points="90,-140 160,-20 90,-80 60,-100" fill="#334155" />
+      <polygon points="-90,-80 -160,-20 -90,0 -45,-45" fill="#0f172a" />
+      <polygon points="90,-80 160,-20 90,0 45,-45" fill="#1e293b" />
+
+      <!-- Electric Cyan Raptor Optics (Slanted Predatory Cant) -->
+      <!-- Left Eye Frame & Glow -->
+      <polygon points="-78,-115 -35,-95 -50,-82 -82,-98" fill="#0b0f19" />
+      <polygon points="-75,-112 -38,-96 -52,-85 -78,-99" fill="url(#cyan-glow)" />
+      <polygon points="-62,-103 -46,-94 -54,-90 -64,-98" fill="#ffffff" opacity="0.8" />
+
+      <!-- Right Eye Frame & Glow (Symmetrical) -->
+      <polygon points="78,-115 35,-95 50,-82 82,-98" fill="#0b0f19" />
+      <polygon points="75,-112 38,-96 52,-85 78,-99" fill="url(#cyan-glow)" />
+      <polygon points="62,-103 46,-94 54,-90 64,-98" fill="#ffffff" opacity="0.8" />
+
+      <!-- Center Beak & Mandible Armor (Refined Falcon Hook) -->
+      <!-- Beak Bridge -->
+      <polygon points="0,-130 -35,-95 0,-60" fill="url(#beak-light)" />
+      <polygon points="0,-130 35,-95 0,-60" fill="#cbd5e1" />
+
+      <!-- Curved Beak Hook -->
+      <polygon points="0,-60 -32,-35 -18,15 0,35" fill="url(#beak-dark)" />
+      <polygon points="0,-60 32,-35 18,15 0,35" fill="url(#beak-light)" />
+      <!-- Sharp Hook Under-Facet -->
+      <polygon points="0,35 -12,18 0,5" fill="#0284c7" />
+      <polygon points="0,35 12,18 0,5" fill="#38bdf8" />
+
+      <!-- Muscular Obsidian Armor Chest & Gateway Vector Shield -->
+      <!-- Center Sternum Keel -->
+      <polygon points="0,45 -55,100 0,165" fill="#1e293b" />
+      <polygon points="0,45 55,100 0,165" fill="#334155" />
+
+      <!-- Pectoral Shield Plates (Left) -->
+      <polygon points="-45,-45 -90,0 -110,90 -55,100" fill="#0f172a" />
+      <polygon points="-55,100 -110,90 -130,190 -70,180 0,165" fill="#1e293b" />
+      <polygon points="0,165 -70,180 -100,240 0,270" fill="#0f172a" />
+      <polygon points="0,270 -100,240 -140,310 0,340" fill="#1e293b" />
+
+      <!-- Pectoral Shield Plates (Right Symmetrical) -->
+      <polygon points="45,-45 90,0 110,90 55,100" fill="#1e293b" />
+      <polygon points="55,100 110,90 130,190 70,180 0,165" fill="#334155" />
+      <polygon points="0,165 70,180 100,240 0,270" fill="#1e293b" />
+      <polygon points="0,270 100,240 140,310 0,340" fill="#334155" />
+
+      <!-- Cyan Telemetry Core / Precision Gateway Node (Negative-Space Meridian Beacon) -->
+      <polygon points="0,110 -25,145 0,180 25,145" fill="none" stroke="#00f5ff" stroke-width="3" opacity="0.8" />
+      <circle cx="0" cy="145" r="4.5" fill="#00f5ff" />
+
+    </g>
+  </g>
+</svg>

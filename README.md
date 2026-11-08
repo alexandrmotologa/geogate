@@ -1,8 +1,24 @@
-# GeoGate
+<p align="center">
+  <img src="docs/images/logo.png?raw=true" alt="GeoGate Logo" width="130" style="border-radius: 24px;" />
+</p>
 
-Self-hosted local IP geolocation, ASN intelligence, and edge geofencing gateway written in Go and React 19. Runs with less than 35MB RAM.
+<h1 align="center">GeoGate</h1>
 
-GeoGate replaces cloud GeoIP SaaS APIs (such as IPinfo and MaxMind Cloud) during local development and testing. It loads MaxMind MMDB datasets into memory, resolves lookups in under 1 microsecond, and functions as a reverse proxy that automatically injects standard CDN edge headers into incoming HTTP requests.
+<p align="center">
+  <img src="https://img.shields.io/badge/go-1.23+-00ADD8?style=flat-square&logo=go" alt="Go Version" />
+  <img src="https://img.shields.io/badge/react-19-61DAFB?style=flat-square&logo=react" alt="React 19" />
+  <img src="https://img.shields.io/badge/ram-<%2035MB-10B981?style=flat-square" alt="RAM Usage" />
+  <img src="https://img.shields.io/badge/latency-0.22μs-8B5CF6?style=flat-square" alt="Lookup Latency" />
+  <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="License" />
+</p>
+
+<p align="center">
+  <strong>Self-hosted local IP geolocation, ASN intelligence, and edge geofencing gateway. Single binary with in-memory MaxMind MMDB radix trie (< 1μs) and embedded React 19 World Map Studio.</strong>
+</p>
+
+<p align="center">
+  <img src="docs/images/geogate_demo.gif?raw=true" alt="GeoGate Interactive Demo" width="100%" />
+</p>
 
 ---
 
@@ -23,6 +39,37 @@ GeoGate replaces cloud GeoIP SaaS APIs (such as IPinfo and MaxMind Cloud) during
 - Declarative Configuration: Define custom CIDR overrides and routing rules in `geogate.yaml`.
 - Prometheus Metrics: Native exporter on `/metrics` tracking throughput, latency, and memory consumption.
 - Zero External Dependencies: Built-in dataset covers all 249 ISO 3166-1 territories, major world cities, and network subnets out of the box.
+
+---
+
+## Screenshots & Visual Interface
+
+### 1. Interactive 3D World Map & Edge Header Synthesizer
+Click any city pin on the 3D globe to simulate requests arriving from that metropolitan hub. Inspect live Cloudflare and CDN edge headers, toggle browser session simulation cookies, and copy framework code recipes:
+
+![GeoGate World Map Studio](docs/images/geogate_studio.png?raw=true)
+
+### 2. Live Proxy Stream & Header Diff Viewer
+Real-time SSE event pipeline streaming every request routed to your upstream application. Compare original client headers side-by-side with injected edge headers, or replay captured traffic as any country:
+
+![GeoGate Live Proxy Stream](docs/images/geogate_proxy_stream.png?raw=true)
+
+### 3. High-Throughput Batch Pipeline
+Goroutine worker pool executing bulk geolocation lookups with microsecond-level latency tracking and CSV / JSON export:
+
+![GeoGate Batch Pipeline](docs/images/geogate_batch.png?raw=true)
+
+### 4. Geofencing Rule Matrix
+Interactive policy simulator testing country allow / block rules, mandatory EU jurisdiction boundaries, and ASN restrictions:
+
+![GeoGate Geofence Matrix](docs/images/geogate_geofence.png?raw=true)
+
+### 5. Responsive Mobile Cockpit
+Full functionality preserved on mobile viewports with swipeable tab navigation and compact telemetry:
+
+<p align="center">
+  <img src="docs/images/geogate_mobile.png?raw=true" alt="GeoGate Mobile View" width="380" />
+</p>
 
 ---
 

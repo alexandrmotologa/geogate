@@ -116,7 +116,7 @@ export const ProxyStream: React.FC<ProxyStreamProps> = ({ upstreamUrl }) => {
   };
 
   return (
-    <div className="bg-slate-900/60 rounded-2xl border border-slate-800/80 p-5 backdrop-blur-sm flex flex-col h-[600px] relative">
+    <div className="bg-slate-900/60 rounded-2xl border border-slate-800/80 p-4 sm:p-5 backdrop-blur-sm flex flex-col min-h-[600px] relative">
       {/* Stream Controls Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800/80">
         <div className="flex items-center gap-2.5">

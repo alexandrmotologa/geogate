@@ -105,7 +105,7 @@ export const BatchTester: React.FC = () => {
   );
 
   return (
-    <div className="bg-slate-900/60 rounded-2xl border border-slate-800/80 p-5 backdrop-blur-sm flex flex-col h-[580px]">
+    <div className="bg-slate-900/60 rounded-2xl border border-slate-800/80 p-4 sm:p-5 backdrop-blur-sm flex flex-col min-h-[580px]">
       {/* Top Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800/80">
         <div className="flex items-center gap-2.5">

@@ -145,11 +145,11 @@ export const App: React.FC = () => {
       {/* Main Container */}
       <main className="max-w-7xl mx-auto w-full px-6 py-6 flex-1 flex flex-col space-y-5">
         {/* Navigation Tabs Bar */}
-        <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-between border-b border-slate-800/80 pb-3 gap-3">
+          <div className="flex items-center gap-2 overflow-x-auto py-1 max-w-full">
             <button
               onClick={() => setActiveTab('map')}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
+              className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'map'
                   ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
@@ -160,7 +160,7 @@ export const App: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('stream')}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
+              className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'stream'
                   ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
@@ -171,7 +171,7 @@ export const App: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('batch')}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
+              className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'batch'
                   ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
@@ -182,7 +182,7 @@ export const App: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('geofence')}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
+              className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'geofence'
                   ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
