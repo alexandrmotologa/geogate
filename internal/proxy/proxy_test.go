@@ -80,5 +80,36 @@ func TestProxyHeaderInjectionAndOverrides(t *testing.T) {
 		if receivedHeaders.Get("X-Geo-EU") != "1" {
 			t.Errorf("X-Geo-EU = %q, want 1", receivedHeaders.Get("X-Geo-EU"))
 		}
+		if receivedHeaders.Get("X-Geo-PPP-Factor") != "0.48" {
+			t.Errorf("X-Geo-PPP-Factor = %q, want 0.48", receivedHeaders.Get("X-Geo-PPP-Factor"))
+		}
+		if receivedHeaders.Get("X-Geo-PPP-Discount") != "52" {
+			t.Errorf("X-Geo-PPP-Discount = %q, want 52", receivedHeaders.Get("X-Geo-PPP-Discount"))
+		}
+	})
+
+	t.Run("Security & Tor Simulation Override", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "http://localhost:8080/login?simulate_conn=tor", nil)
+		w := httptest.NewRecorder()
+
+		handler.ServeHTTP(w, req)
+
+		if receivedHeaders.Get("X-Geo-Connection-Type") != "tor" {
+			t.Errorf("X-Geo-Connection-Type = %q, want tor", receivedHeaders.Get("X-Geo-Connection-Type"))
+		}
+		if receivedHeaders.Get("X-Geo-Is-Tor") != "1" {
+			t.Errorf("X-Geo-Is-Tor = %q, want 1", receivedHeaders.Get("X-Geo-Is-Tor"))
+		}
+	})
+
+	t.Run("Chaos Latency Injection Header", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "http://localhost:8080/api/data?simulate_latency=20ms", nil)
+		w := httptest.NewRecorder()
+
+		handler.ServeHTTP(w, req)
+
+		if w.Header().Get("X-GeoGate-Injected-Latency") == "" {
+			t.Errorf("Expected X-GeoGate-Injected-Latency header in client response")
+		}
 	})
 }

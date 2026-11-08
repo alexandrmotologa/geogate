@@ -71,4 +71,25 @@ The proxy handler (`internal/proxy/handler.go`) intercepts incoming traffic:
 
 ## Event Hub and Streaming
 
-The event hub (`internal/proxy/hub.go`) retains a ring buffer of the 100 most recent transactions and broadcasts them over Server-Sent Events (`GET /v1/events`). This allows the browser studio to visualize live traffic without polling.
+The event hub (`internal/proxy/hub.go`) retains a ring buffer of the 150 most recent transactions and broadcasts them over Server-Sent Events (`GET /v1/events`). This allows the browser studio to visualize live traffic without polling. Each event records both original client headers and GeoGate injected headers, enabling instant header diffing.
+
+## Chaos Latency Simulation
+
+The latency simulation engine (`internal/proxy/latency.go`) calculates realistic network round-trip delays between the client location and the upstream application. When `?simulate_latency=auto` is specified, GeoGate computes the great-circle Haversine distance and adds light-in-fiber transit delay plus typical peering jitter (ranging between 20ms and 240ms). Explicit durations such as `?simulate_latency=150ms` are also accepted. Injected latency is communicated to clients via the `X-GeoGate-Injected-Latency` header.
+
+## Purchasing Power Parity (PPP) Engine
+
+The PPP engine models World Bank and IMF economic indicators for 249 territories. It evaluates local currency purchasing power against standard USD benchmark pricing, computing an index factor (`X-Geo-PPP-Factor`) and a recommended localized pricing discount percentage (`X-Geo-PPP-Discount`). Applications can query country statistics via `GET /v1/ppp/:country`.
+
+## Anti-Fraud and Security Intelligence
+
+GeoGate identifies incoming connection types using Autonomous System classifications:
+- Datacenters (`X-Geo-Is-Datacenter: 1`): Cloud providers including AWS, GCP, Azure, Hetzner, DigitalOcean, OVH, and Vultr.
+- VPN and Proxies (`X-Geo-Is-VPN: 1`): Known commercial VPN routing ASNs.
+- Tor Exit Nodes (`X-Geo-Is-Tor: 1`): Simulated or recognized Tor onion router exits.
+- Connection classification: Exposed as `X-Geo-Connection-Type` (`residential`, `datacenter`, `vpn`, or `tor`). Developers can simulate any security persona with `?simulate_conn=tor` or `?simulate_conn=datacenter`.
+
+## Declarative Configuration
+
+Custom subnet classifications, city overrides, and gateway settings can be defined in `geogate.yaml` or `geogate.json`. GeoGate parses these rules at startup, building an augmented trie that overrides public database resolutions for designated enterprise CIDRs.
+

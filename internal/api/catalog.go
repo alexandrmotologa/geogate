@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"net/http"
 	"runtime"
 	"time"
@@ -64,7 +65,41 @@ func (s *Server) HandleGetStatus(w http.ResponseWriter, r *http.Request) {
 	s.respondJSON(w, http.StatusOK, status)
 }
 
-// HandleSimulateHeaders computes edge headers for a target country or city.
+// HandleReloadDB triggers zero-downtime hot reloading of MMDB databases.
+func (s *Server) HandleReloadDB(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		s.respondError(w, http.StatusMethodNotAllowed, "Method not allowed. Use POST.")
+		return
+	}
+
+	var payload struct {
+		CityDBPath string `json:"city_db_path"`
+		AsnDBPath  string `json:"asn_db_path"`
+	}
+
+	_ = json.NewDecoder(r.Body).Decode(&payload)
+
+	cityPath := payload.CityDBPath
+	if cityPath == "" {
+		cityPath = s.cfg.CityDBPath
+	}
+	asnPath := payload.AsnDBPath
+	if asnPath == "" {
+		asnPath = s.cfg.AsnDBPath
+	}
+
+	if err := s.engine.ReloadDB(cityPath, asnPath); err != nil {
+		s.respondError(w, http.StatusBadRequest, "Reload failed: "+err.Error())
+		return
+	}
+
+	s.respondJSON(w, http.StatusOK, map[string]interface{}{
+		"status":       "reloaded",
+		"city_db_path": cityPath,
+		"asn_db_path":  asnPath,
+		"external_db":  s.engine.HasExternalDB(),
+	})
+}
 func (s *Server) HandleSimulateHeaders(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	country := q.Get("country")

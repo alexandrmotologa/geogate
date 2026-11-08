@@ -22,10 +22,21 @@ type Engine struct {
 	totalLookups uint64
 }
 
+// CustomRule allows mapping arbitrary local subnets or IP ranges to specific geographic locations.
+type CustomRule struct {
+	CIDR         string
+	Country      string
+	City         string
+	ASN          uint
+	ASNOrg       string
+	IsDatacenter bool
+}
+
 // Config specifies initialization options for the GeoIP engine.
 type Config struct {
-	CityDBPath string
-	AsnDBPath  string
+	CityDBPath  string
+	AsnDBPath   string
+	CustomRules []CustomRule
 }
 
 // NewEngine initializes the geolocation engine with embedded data and optional external MMDB files.
@@ -39,6 +50,11 @@ func NewEngine(cfg Config) (*Engine, error) {
 
 	// Populate built-in high-speed radix trie
 	e.populateBuiltinTrie()
+
+	// Register any custom user-configured rules
+	for _, rule := range cfg.CustomRules {
+		_ = e.AddCustomRule(rule)
+	}
 
 	// Load external MMDB files if present
 	if cfg.CityDBPath != "" {
@@ -107,19 +123,28 @@ func (e *Engine) Lookup(ip net.IP) (*GeoRecord, error) {
 	if ip.IsLoopback() || ip.IsPrivate() || ip.IsUnspecified() {
 		// Default local development record
 		return &GeoRecord{
-			IP:            ip.String(),
-			CountryCode:   "US",
-			CountryName:   "United States",
-			ContinentCode: "NA",
-			City:          "Local Development",
-			Latitude:      37.7749,
-			Longitude:     -122.4194,
-			Timezone:      "America/Los_Angeles",
-			IsEU:          false,
-			Currency:      "USD",
+			IP:             ip.String(),
+			CountryCode:    "US",
+			CountryName:    "United States",
+			ContinentCode:  "NA",
+			City:           "Local Development",
+			Latitude:       37.7749,
+			Longitude:      -122.4194,
+			Timezone:       "America/Los_Angeles",
+			IsEU:           false,
+			Currency:       "USD",
+			PPPFactor:      1.0,
+			PPPDiscount:    0,
+			ConnectionType: "residential",
+			IsDatacenter:   false,
+			IsVPN:          false,
+			IsTor:          false,
 			ASN: ASNRecord{
 				Number:       0,
 				Organization: "Localhost Network",
+				IsDatacenter: false,
+				IsVPN:        false,
+				IsTor:        false,
 			},
 			Simulated: false,
 		}, nil
@@ -139,28 +164,51 @@ func (e *Engine) Lookup(ip net.IP) (*GeoRecord, error) {
 			}
 
 			isEU := cityRecord.Country.IsInEU || EUCountryCodes[countryCode]
+			pppFactor := 1.0
+			pppDiscount := 0
+			if cInfo, ok := CountryDatabase[strings.ToUpper(countryCode)]; ok {
+				pppFactor = cInfo.PPPFactor
+				pppDiscount = cInfo.PPPDiscount
+			}
 
 			record := &GeoRecord{
-				IP:            ip.String(),
-				CountryCode:   countryCode,
-				CountryName:   countryName,
-				ContinentCode: continentCode,
-				City:          cityName,
-				PostalCode:    cityRecord.Postal.Code,
-				Latitude:      cityRecord.Location.Latitude,
-				Longitude:     cityRecord.Location.Longitude,
-				Timezone:      cityRecord.Location.TimeZone,
-				IsEU:          isEU,
-				Currency:      e.getCurrencyForCountry(countryCode),
+				IP:             ip.String(),
+				CountryCode:    countryCode,
+				CountryName:    countryName,
+				ContinentCode:  continentCode,
+				City:           cityName,
+				PostalCode:     cityRecord.Postal.Code,
+				Latitude:       cityRecord.Location.Latitude,
+				Longitude:      cityRecord.Location.Longitude,
+				Timezone:       cityRecord.Location.TimeZone,
+				IsEU:           isEU,
+				Currency:       e.getCurrencyForCountry(countryCode),
+				PPPFactor:      pppFactor,
+				PPPDiscount:    pppDiscount,
+				ConnectionType: "residential",
 			}
 
 			if e.asnDB != nil {
 				var asnRecord MaxMindASNRecord
 				if errASN := e.asnDB.Lookup(ip, &asnRecord); errASN == nil {
+					isDC := DatacenterASNs[asnRecord.AutonomousSystemNumber]
+					isVPN := KnownVPNASNs[asnRecord.AutonomousSystemNumber]
+					connType := "residential"
+					if isDC {
+						connType = "datacenter"
+					} else if isVPN {
+						connType = "vpn"
+					}
 					record.ASN = ASNRecord{
 						Number:       asnRecord.AutonomousSystemNumber,
 						Organization: asnRecord.AutonomousSystemOrganization,
+						IsDatacenter: isDC,
+						IsVPN:        isVPN,
+						IsTor:        false,
 					}
+					record.IsDatacenter = isDC
+					record.IsVPN = isVPN
+					record.ConnectionType = connType
 				}
 			}
 
@@ -325,20 +373,38 @@ func (e *Engine) populateBuiltinTrie() {
 			continue
 		}
 
+		isDC := DatacenterASNs[entry.asn]
+		isVPN := KnownVPNASNs[entry.asn]
+		connType := "residential"
+		if isDC {
+			connType = "datacenter"
+		} else if isVPN {
+			connType = "vpn"
+		}
+
 		rec := &GeoRecord{
-			CountryCode:   entry.country,
-			CountryName:   info.Name,
-			ContinentCode: info.Continent,
-			City:          entry.city,
-			Latitude:      info.Latitude,
-			Longitude:     info.Longitude,
-			Timezone:      info.Timezone,
-			IsEU:          info.IsEU,
-			Currency:      info.Currency,
+			CountryCode:    entry.country,
+			CountryName:    info.Name,
+			ContinentCode:  info.Continent,
+			City:           entry.city,
+			Latitude:       info.Latitude,
+			Longitude:      info.Longitude,
+			Timezone:       info.Timezone,
+			IsEU:           info.IsEU,
+			Currency:       info.Currency,
+			PPPFactor:      info.PPPFactor,
+			PPPDiscount:    info.PPPDiscount,
+			ConnectionType: connType,
+			IsDatacenter:   isDC,
+			IsVPN:          isVPN,
+			IsTor:          false,
 			ASN: ASNRecord{
 				Number:       entry.asn,
 				Organization: entry.asnOrg,
 				Network:      entry.cidr,
+				IsDatacenter: isDC,
+				IsVPN:        isVPN,
+				IsTor:        false,
 			},
 		}
 
@@ -346,7 +412,107 @@ func (e *Engine) populateBuiltinTrie() {
 	}
 }
 
-// BenchmarkSingleLookup runs repeated lookups and returns average duration in nanoseconds.
+// AddCustomRule inserts a custom CIDR mapping into the radix trie.
+func (e *Engine) AddCustomRule(rule CustomRule) error {
+	countryCode := strings.ToUpper(strings.TrimSpace(rule.Country))
+	info, ok := CountryDatabase[countryCode]
+	if !ok {
+		info = CountryInfo{
+			Code:      countryCode,
+			Name:      countryCode,
+			Continent: "EU",
+			Currency:  "USD",
+			PPPFactor: 1.0,
+		}
+	}
+
+	cityName := rule.City
+	if cityName == "" {
+		cityName = info.Capital
+	}
+
+	asnNumber := rule.ASN
+	if asnNumber == 0 {
+		asnNumber = info.DefaultASN
+	}
+	asnOrg := rule.ASNOrg
+	if asnOrg == "" {
+		asnOrg = info.ASNOrg
+	}
+
+	connType := "residential"
+	if rule.IsDatacenter || DatacenterASNs[asnNumber] {
+		connType = "datacenter"
+	}
+
+	rec := &GeoRecord{
+		CountryCode:    countryCode,
+		CountryName:    info.Name,
+		ContinentCode:  info.Continent,
+		City:           cityName,
+		Latitude:       info.Latitude,
+		Longitude:      info.Longitude,
+		Timezone:       info.Timezone,
+		IsEU:           info.IsEU,
+		Currency:       info.Currency,
+		PPPFactor:      info.PPPFactor,
+		PPPDiscount:    info.PPPDiscount,
+		ConnectionType: connType,
+		IsDatacenter:   rule.IsDatacenter || DatacenterASNs[asnNumber],
+		IsVPN:          false,
+		IsTor:          false,
+		ASN: ASNRecord{
+			Number:       asnNumber,
+			Organization: asnOrg,
+			Network:      rule.CIDR,
+			IsDatacenter: rule.IsDatacenter || DatacenterASNs[asnNumber],
+		},
+		Simulated: false,
+	}
+
+	return e.trie.InsertCIDR(rule.CIDR, rec)
+}
+
+// ReloadDB hot-swaps active MaxMind MMDB reader files with zero downtime.
+func (e *Engine) ReloadDB(cityDBPath, asnDBPath string) error {
+	var newCityDB *maxminddb.Reader
+	var newAsnDB *maxminddb.Reader
+	var err error
+
+	if cityDBPath != "" {
+		newCityDB, err = maxminddb.Open(cityDBPath)
+		if err != nil {
+			return fmt.Errorf("failed to open new City DB: %w", err)
+		}
+	}
+
+	if asnDBPath != "" {
+		newAsnDB, err = maxminddb.Open(asnDBPath)
+		if err != nil {
+			if newCityDB != nil {
+				_ = newCityDB.Close()
+			}
+			return fmt.Errorf("failed to open new ASN DB: %w", err)
+		}
+	}
+
+	oldCity := e.cityDB
+	oldAsn := e.asnDB
+
+	e.cityDB = newCityDB
+	e.asnDB = newAsnDB
+	e.cityDBPath = cityDBPath
+	e.asnDBPath = asnDBPath
+
+	if oldCity != nil {
+		_ = oldCity.Close()
+	}
+	if oldAsn != nil {
+		_ = oldAsn.Close()
+	}
+
+	return nil
+}
 func (e *Engine) BenchmarkSingleLookup(iterations int) (time.Duration, error) {
 	testIP := net.ParseIP("8.8.8.8")
 	start := time.Now()

@@ -58,6 +58,9 @@ func (s *Server) registerRoutes() {
 	s.mux.HandleFunc("/v1/cities", s.HandleGetCities)
 	s.mux.HandleFunc("/v1/status", s.HandleGetStatus)
 	s.mux.HandleFunc("/v1/headers/simulate", s.HandleSimulateHeaders)
+	s.mux.HandleFunc("/v1/proxy/replay", s.HandleReplayRequest)
+	s.mux.HandleFunc("/v1/ppp/", s.HandleGetPPP)
+	s.mux.HandleFunc("/v1/db/reload", s.HandleReloadDB)
 
 	// Server-Sent Events stream for live proxy transactions
 	s.mux.HandleFunc("/v1/events", s.hub.ServeSSE)

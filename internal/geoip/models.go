@@ -1,27 +1,36 @@
 package geoip
 
-// ASNRecord holds autonomous system metadata.
+// ASNRecord holds autonomous system metadata and connection classifications.
 type ASNRecord struct {
 	Number       uint   `json:"number"`
 	Organization string `json:"organization"`
 	Network      string `json:"network,omitempty"`
+	IsDatacenter bool   `json:"is_datacenter"`
+	IsVPN        bool   `json:"is_vpn"`
+	IsTor        bool   `json:"is_tor"`
 }
 
-// GeoRecord holds enriched geographic and network intelligence for an IP.
+// GeoRecord holds enriched geographic, network intelligence, security classifications, and PPP metrics.
 type GeoRecord struct {
-	IP            string    `json:"ip"`
-	CountryCode   string    `json:"country_code"`
-	CountryName   string    `json:"country_name"`
-	ContinentCode string    `json:"continent_code"`
-	City          string    `json:"city"`
-	PostalCode    string    `json:"postal_code,omitempty"`
-	Latitude      float64   `json:"latitude"`
-	Longitude     float64   `json:"longitude"`
-	Timezone      string    `json:"timezone"`
-	IsEU          bool      `json:"is_eu"`
-	Currency      string    `json:"currency"`
-	ASN           ASNRecord `json:"asn"`
-	Simulated     bool      `json:"simulated,omitempty"`
+	IP             string    `json:"ip"`
+	CountryCode    string    `json:"country_code"`
+	CountryName    string    `json:"country_name"`
+	ContinentCode  string    `json:"continent_code"`
+	City           string    `json:"city"`
+	PostalCode     string    `json:"postal_code,omitempty"`
+	Latitude       float64   `json:"latitude"`
+	Longitude      float64   `json:"longitude"`
+	Timezone       string    `json:"timezone"`
+	IsEU           bool      `json:"is_eu"`
+	Currency       string    `json:"currency"`
+	PPPFactor      float64   `json:"ppp_factor"`
+	PPPDiscount    int       `json:"ppp_discount"`
+	ConnectionType string    `json:"connection_type"`
+	IsDatacenter   bool      `json:"is_datacenter"`
+	IsVPN          bool      `json:"is_vpn"`
+	IsTor          bool      `json:"is_tor"`
+	ASN            ASNRecord `json:"asn"`
+	Simulated      bool      `json:"simulated,omitempty"`
 }
 
 // CityEntry represents a prominent global metropolitan area for map interaction.
@@ -35,11 +44,13 @@ type CityEntry struct {
 	SampleIP    string  `json:"sample_ip"`
 	IsEU        bool    `json:"is_eu"`
 	Currency    string  `json:"currency"`
+	PPPFactor   float64 `json:"ppp_factor"`
+	PPPDiscount int     `json:"ppp_discount"`
 	ASN         uint    `json:"asn"`
 	ASNOrg      string  `json:"asn_org"`
 }
 
-// CountryInfo contains ISO country metadata, default representative coordinates and representative IP.
+// CountryInfo contains ISO country metadata, coordinates, PPP indexes, and default representative IP.
 type CountryInfo struct {
 	Code        string  `json:"code"`
 	Name        string  `json:"name"`
@@ -50,6 +61,8 @@ type CountryInfo struct {
 	Timezone    string  `json:"timezone"`
 	Currency    string  `json:"currency"`
 	IsEU        bool    `json:"is_eu"`
+	PPPFactor   float64 `json:"ppp_factor"`
+	PPPDiscount int     `json:"ppp_discount"`
 	SampleIP    string  `json:"sample_ip"`
 	DefaultASN  uint    `json:"default_asn"`
 	ASNOrg      string  `json:"asn_org"`

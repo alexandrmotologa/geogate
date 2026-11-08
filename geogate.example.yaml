@@ -1,0 +1,31 @@
+# GeoGate Declarative Configuration Example
+# Launch with: geogate serve -config geogate.example.yaml
+
+port: 8080
+upstream_url: "http://localhost:3000"
+default_country: "US"
+enable_cors: true
+max_batch_size: 100000
+
+# Optional chaos latency injection: "auto", "100ms", "250ms"
+# simulate_latency: "auto"
+
+# Optional external MaxMind MMDB files
+# city_db_path: "./data/GeoLite2-City.mmdb"
+# asn_db_path: "./data/GeoLite2-ASN.mmdb"
+
+# Custom enterprise CIDR routing & simulation rules
+rules:
+  - cidr: "192.168.1.0/24"
+    country: "RO"
+    city: "Bucharest"
+    asn: 8708
+    asn_org: "Internal Office Bucharest"
+    is_datacenter: false
+
+  - cidr: "10.0.0.0/8"
+    country: "DE"
+    city: "Frankfurt"
+    asn: 24940
+    asn_org: "Internal Kubernetes Cluster"
+    is_datacenter: true

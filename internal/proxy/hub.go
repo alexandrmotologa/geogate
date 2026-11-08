@@ -8,20 +8,22 @@ import (
 	"time"
 )
 
-// RequestEvent represents a logged proxy transaction for real-time visualization.
+// RequestEvent represents a logged proxy transaction for real-time visualization and replay.
 type RequestEvent struct {
-	ID          uint64            `json:"id"`
-	Timestamp   string            `json:"timestamp"`
-	Method      string            `json:"method"`
-	Path        string            `json:"path"`
-	ClientIP    string            `json:"client_ip"`
-	Simulated   bool              `json:"simulated"`
-	CountryCode string            `json:"country_code"`
-	CountryName string            `json:"country_name"`
-	City        string            `json:"city"`
-	StatusCode  int               `json:"status_code"`
-	DurationMs  float64           `json:"duration_ms"`
-	Headers     map[string]string `json:"headers"`
+	ID              uint64            `json:"id"`
+	Timestamp       string            `json:"timestamp"`
+	Method          string            `json:"method"`
+	Path            string            `json:"path"`
+	ClientIP        string            `json:"client_ip"`
+	Simulated       bool              `json:"simulated"`
+	CountryCode     string            `json:"country_code"`
+	CountryName     string            `json:"country_name"`
+	City            string            `json:"city"`
+	StatusCode      int               `json:"status_code"`
+	DurationMs      float64           `json:"duration_ms"`
+	InjectedLatency string            `json:"injected_latency,omitempty"`
+	Headers         map[string]string `json:"headers"`
+	OriginalHeaders map[string]string `json:"original_headers,omitempty"`
 }
 
 // EventHub manages live SSE subscribers.
@@ -76,6 +78,19 @@ func (h *EventHub) RecentHistory() []*RequestEvent {
 	res := make([]*RequestEvent, len(h.history))
 	copy(res, h.history)
 	return res
+}
+
+// GetEventByID retrieves a historical event by its identifier.
+func (h *EventHub) GetEventByID(id uint64) *RequestEvent {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+
+	for _, evt := range h.history {
+		if evt.ID == id {
+			return evt
+		}
+	}
+	return nil
 }
 
 // ServeSSE handles the Server-Sent Events HTTP connection.

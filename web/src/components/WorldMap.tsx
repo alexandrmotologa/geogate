@@ -479,10 +479,18 @@ export const WorldMap: React.FC<WorldMapProps> = ({
                   EU Member
                 </span>
               )}
+              {selectedCity.ppp_discount !== undefined && selectedCity.ppp_discount > 0 && (
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-950 border border-amber-800 text-amber-300 font-semibold">
+                  -{selectedCity.ppp_discount}% PPP
+                </span>
+              )}
             </div>
             <div className="text-xs text-slate-400 mt-0.5 flex flex-wrap gap-x-3">
               <span>Timezone: {selectedCity.timezone}</span>
               <span>Currency: {selectedCity.currency}</span>
+              {selectedCity.ppp_factor !== undefined && (
+                <span>PPP: {selectedCity.ppp_factor}x</span>
+              )}
               <span className="font-mono text-slate-300">AS{selectedCity.asn}</span>
             </div>
           </div>

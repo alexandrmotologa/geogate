@@ -14,19 +14,25 @@ type HeaderMap map[string]string
 // SynthesizeHeaders generates a map of standard CDN edge headers for a GeoRecord.
 func SynthesizeHeaders(rec *geoip.GeoRecord) HeaderMap {
 	headers := HeaderMap{
-		"CF-IPCountry":     rec.CountryCode,
-		"X-Country-Code":   rec.CountryCode,
-		"X-Country-Name":   rec.CountryName,
-		"X-Geo-City":       rec.City,
-		"X-Geo-Latitude":   fmt.Sprintf("%.4f", rec.Latitude),
-		"X-Geo-Longitude":  fmt.Sprintf("%.4f", rec.Longitude),
-		"X-Geo-Timezone":   rec.Timezone,
-		"X-Geo-EU":         strconv.Itoa(btoi(rec.IsEU)),
-		"X-ASN":            fmt.Sprintf("AS%d", rec.ASN.Number),
-		"X-ASN-Org":        rec.ASN.Organization,
-		"X-Geo-Currency":   rec.Currency,
-		"X-Real-IP":        rec.IP,
-		"X-Forwarded-For":  rec.IP,
+		"CF-IPCountry":          rec.CountryCode,
+		"X-Country-Code":        rec.CountryCode,
+		"X-Country-Name":        rec.CountryName,
+		"X-Geo-City":            rec.City,
+		"X-Geo-Latitude":        fmt.Sprintf("%.4f", rec.Latitude),
+		"X-Geo-Longitude":       fmt.Sprintf("%.4f", rec.Longitude),
+		"X-Geo-Timezone":        rec.Timezone,
+		"X-Geo-EU":              strconv.Itoa(btoi(rec.IsEU)),
+		"X-ASN":                 fmt.Sprintf("AS%d", rec.ASN.Number),
+		"X-ASN-Org":             rec.ASN.Organization,
+		"X-Geo-Currency":        rec.Currency,
+		"X-Geo-PPP-Factor":      fmt.Sprintf("%.2f", rec.PPPFactor),
+		"X-Geo-PPP-Discount":    strconv.Itoa(rec.PPPDiscount),
+		"X-Geo-Connection-Type": rec.ConnectionType,
+		"X-Geo-Is-Datacenter":   strconv.Itoa(btoi(rec.IsDatacenter)),
+		"X-Geo-Is-VPN":          strconv.Itoa(btoi(rec.IsVPN)),
+		"X-Geo-Is-Tor":          strconv.Itoa(btoi(rec.IsTor)),
+		"X-Real-IP":             rec.IP,
+		"X-Forwarded-For":       rec.IP,
 	}
 
 	if rec.Simulated {

@@ -19,6 +19,13 @@ GeoGate adds the following headers to each proxied request:
 | `X-ASN` | string | `AS9370` | Autonomous System Number |
 | `X-ASN-Org` | string | `Sakura Internet Inc.` | Autonomous System Organization name |
 | `X-Geo-Currency` | string | `JPY` | ISO 4217 currency code |
+| `X-Geo-PPP-Factor` | string | `0.75` | Purchasing Power Parity factor relative to USD |
+| `X-Geo-PPP-Discount` | string | `25` | Recommended localized pricing discount percent |
+| `X-Geo-Connection-Type` | string | `residential` | Detected or simulated type: residential, datacenter, vpn, tor |
+| `X-Geo-Is-Datacenter` | string | `0` or `1` | 1 if IP belongs to a cloud hosting or datacenter provider |
+| `X-Geo-Is-VPN` | string | `0` or `1` | 1 if IP is associated with known commercial VPNs |
+| `X-Geo-Is-Tor` | string | `0` or `1` | 1 if request simulates or originates from a Tor exit |
+| `X-GeoGate-Injected-Latency` | string | `120ms` | Duration slept before forwarding when latency simulation is active |
 | `X-Real-IP` | string | `133.242.1.1` | Client or simulated IP |
 | `X-GeoGate-Simulated` | string | `true` or `false` | True if request was triggered by a simulation rule |
 
@@ -158,12 +165,16 @@ You can simulate any geographic location by passing parameters in your requests:
    ```bash
    curl "http://localhost:8080/pricing?simulate_country=JP"
    curl "http://localhost:8080/pricing?simulate_city=Berlin"
+   curl "http://localhost:8080/pricing?simulate_country=RO&simulate_conn=tor"
+   curl "http://localhost:8080/pricing?simulate_latency=auto"
    ```
 
 2. Request Header:
    ```bash
    curl -H "X-Simulate-Country: RO" http://localhost:8080/checkout
    curl -H "X-Simulate-City: Tokyo" http://localhost:8080/checkout
+   curl -H "X-Simulate-Conn: datacenter" http://localhost:8080/api/orders
+   curl -H "X-Simulate-Latency: 150ms" http://localhost:8080/api/orders
    ```
 
 3. Browser Session Cookie:

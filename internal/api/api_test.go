@@ -129,3 +129,73 @@ func TestGeofenceEvaluationEndpoint(t *testing.T) {
 		t.Errorf("Expected US IP to be blocked under RequireEU")
 	}
 }
+
+func TestPPPEndpoint(t *testing.T) {
+	srv := setupTestServer(t)
+
+	req := httptest.NewRequest(http.MethodGet, "/v1/ppp/RO", nil)
+	w := httptest.NewRecorder()
+
+	srv.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("Expected 200, got %d", w.Code)
+	}
+
+	var resp map[string]interface{}
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("Failed to decode PPP response: %v", err)
+	}
+
+	if resp["country_code"] != "RO" {
+		t.Errorf("country_code = %v, want RO", resp["country_code"])
+	}
+	if resp["recommended_discount"] != float64(52) {
+		t.Errorf("recommended_discount = %v, want 52", resp["recommended_discount"])
+	}
+}
+
+func TestReplayEndpoint(t *testing.T) {
+	srv := setupTestServer(t)
+
+	// Mock upstream server
+	mockUpstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		country := r.Header.Get("CF-IPCountry")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("replayed-to-" + country))
+	}))
+	defer mockUpstream.Close()
+
+	srv.cfg.UpstreamURL = mockUpstream.URL
+
+	payload := ReplayRequest{
+		Method:          "GET",
+		Path:            "/checkout",
+		SimulateCountry: "JP",
+	}
+	data, _ := json.Marshal(payload)
+
+	req := httptest.NewRequest(http.MethodPost, "/v1/proxy/replay", bytes.NewReader(data))
+	w := httptest.NewRecorder()
+
+	srv.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("Expected 200, got %d: %s", w.Code, w.Body.String())
+	}
+
+	var resp ReplayResponse
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("Failed to parse replay response: %v", err)
+	}
+
+	if !resp.Success {
+		t.Errorf("Expected replay success, got error: %s", resp.Error)
+	}
+	if resp.SimulatedCountry != "JP" {
+		t.Errorf("SimulatedCountry = %s, want JP", resp.SimulatedCountry)
+	}
+	if resp.UpstreamResponse != "replayed-to-JP" {
+		t.Errorf("UpstreamResponse = %s, want replayed-to-JP", resp.UpstreamResponse)
+	}
+}

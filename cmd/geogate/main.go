@@ -41,6 +41,9 @@ func main() {
 		case "benchmark":
 			runBenchmarkCommand(os.Args[2:])
 			return
+		case "db":
+			runDBCommand(os.Args[2:])
+			return
 		case "help", "-h", "--help":
 			printUsage()
 			return
@@ -64,6 +67,7 @@ Commands:
   serve              Start reverse proxy, Edge header injection, and Web Map Studio (default)
   lookup <ip>        Resolve geographic and network metadata for a single IP
   benchmark [count]  Execute in-memory lookup benchmark asserting sub-8us latency
+  db download        Download latest open DB-IP MMDB database file to local directory
   version            Print GeoGate version and build details
 
 Flags (for serve):
@@ -146,6 +150,32 @@ func runBenchmarkCommand(args []string) {
 	fmt.Println("-----------------------------------------------------------------")
 }
 
+func runDBCommand(args []string) {
+	if len(args) == 0 || (args[0] != "update" && args[0] != "download") {
+		fmt.Println("Usage: geogate db download [--dir ./data]")
+		os.Exit(1)
+	}
+
+	destDir := "./data"
+	for i, arg := range args {
+		if (arg == "--dir" || arg == "-dir") && i+1 < len(args) {
+			destDir = args[i+1]
+			break
+		}
+	}
+
+	fmt.Printf("Fetching latest DB-IP open database archive into %s...\n", destDir)
+	dl := geoip.NewDownloader()
+	path, err := dl.DownloadDBIP(destDir)
+	if err != nil {
+		fmt.Printf("Error: Database download failed: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Successfully downloaded and extracted database to: %s\n", path)
+	fmt.Printf("To use this database with GeoGate, launch with: geogate serve -city-db %s\n", path)
+}
+
 func runServer() {
 	// If first argument is 'serve', strip it before parsing flags
 	if len(os.Args) > 1 && os.Args[1] == "serve" {
@@ -159,11 +189,30 @@ func runServer() {
 	fmt.Printf("  Port:           %d\n", cfg.Port)
 	fmt.Printf("  Upstream App:   %s\n", cfg.UpstreamURL)
 	fmt.Printf("  Default Locale: %s\n", cfg.DefaultCountry)
+	if cfg.ConfigFile != "" {
+		fmt.Printf("  Config File:    %s (%d custom rules loaded)\n", cfg.ConfigFile, len(cfg.Rules))
+	}
+	if cfg.SimulateLatency != "" {
+		fmt.Printf("  Chaos Latency:  Active (%s)\n", cfg.SimulateLatency)
+	}
+
+	customRules := make([]geoip.CustomRule, len(cfg.Rules))
+	for i, r := range cfg.Rules {
+		customRules[i] = geoip.CustomRule{
+			CIDR:         r.CIDR,
+			Country:      r.Country,
+			City:         r.City,
+			ASN:          r.ASN,
+			ASNOrg:       r.ASNOrg,
+			IsDatacenter: r.IsDatacenter,
+		}
+	}
 
 	// Initialize in-memory engine
 	engine, err := geoip.NewEngine(geoip.Config{
-		CityDBPath: cfg.CityDBPath,
-		AsnDBPath:  cfg.AsnDBPath,
+		CityDBPath:  cfg.CityDBPath,
+		AsnDBPath:   cfg.AsnDBPath,
+		CustomRules: customRules,
 	})
 	if err != nil {
 		fmt.Printf("Fatal: Engine initialization failed: %v\n", err)

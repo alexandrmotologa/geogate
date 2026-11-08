@@ -2,6 +2,9 @@ export interface ASNRecord {
   number: number;
   organization: string;
   network?: string;
+  is_datacenter?: boolean;
+  is_vpn?: boolean;
+  is_tor?: boolean;
 }
 
 export interface GeoRecord {
@@ -16,6 +19,12 @@ export interface GeoRecord {
   timezone: string;
   is_eu: boolean;
   currency: string;
+  ppp_factor?: number;
+  ppp_discount?: number;
+  connection_type?: string;
+  is_datacenter?: boolean;
+  is_vpn?: boolean;
+  is_tor?: boolean;
   asn: ASNRecord;
   simulated?: boolean;
 }
@@ -30,6 +39,8 @@ export interface CityEntry {
   sample_ip: string;
   is_eu: boolean;
   currency: string;
+  ppp_factor?: number;
+  ppp_discount?: number;
   asn: number;
   asn_org: string;
 }
@@ -44,6 +55,8 @@ export interface CountryInfo {
   timezone: string;
   currency: string;
   is_eu: boolean;
+  ppp_factor?: number;
+  ppp_discount?: number;
   sample_ip: string;
   default_asn: number;
   asn_org: string;
@@ -75,6 +88,29 @@ export interface RequestEvent {
   status_code: number;
   duration_ms: number;
   headers: Record<string, string>;
+  original_headers?: Record<string, string>;
+  injected_latency?: string;
+  connection_type?: string;
+}
+
+export interface ReplayRequest {
+  event_id?: number;
+  method: string;
+  path: string;
+  simulate_country: string;
+  simulate_city?: string;
+  simulate_conn?: string;
+  simulate_latency?: string;
+}
+
+export interface ReplayResponse {
+  success: boolean;
+  status_code: number;
+  duration_ms: number;
+  simulated_country: string;
+  injected_headers: Record<string, string>;
+  upstream_response?: string;
+  error?: string;
 }
 
 export interface GeofencePolicy {

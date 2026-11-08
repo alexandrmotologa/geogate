@@ -83,20 +83,39 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	start := time.Now()
 
+	// Capture original incoming headers for inspection and diffing
+	origHeaders := make(map[string]string)
+	for k, v := range req.Header {
+		if len(v) > 0 {
+			origHeaders[k] = v[0]
+		}
+	}
+
 	// Resolve geographic intelligence for this request
 	geoRec, err := p.resolver.Resolve(req)
 	if err != nil {
 		// Fallback to basic record if resolution fails
 		geoRec = &geoip.GeoRecord{
-			IP:          ExtractClientIP(req),
-			CountryCode: "US",
-			CountryName: "United States",
-			City:        "Unknown",
+			IP:             ExtractClientIP(req),
+			CountryCode:    "US",
+			CountryName:    "United States",
+			City:           "Unknown",
+			ConnectionType: "residential",
 		}
 	}
 
 	// Inject standard edge CDN headers
 	InjectHeaders(req, geoRec)
+
+	// Check and apply network delay simulation (Chaos Geolocation)
+	injectedLatency := ResolveInjectedLatency(req, geoRec)
+	var latencyStr string
+	if injectedLatency > 0 {
+		latencyStr = injectedLatency.String()
+		req.Header.Set("X-GeoGate-Injected-Latency", latencyStr)
+		w.Header().Set("X-GeoGate-Injected-Latency", latencyStr)
+		time.Sleep(injectedLatency)
+	}
 
 	// Prepare tracking recorder
 	recorder := &statusRecorder{
@@ -112,16 +131,18 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// Emit live event to event hub
 	if p.hub != nil {
 		p.hub.Publish(&RequestEvent{
-			Method:      req.Method,
-			Path:        req.URL.Path,
-			ClientIP:    geoRec.IP,
-			Simulated:   geoRec.Simulated,
-			CountryCode: geoRec.CountryCode,
-			CountryName: geoRec.CountryName,
-			City:        geoRec.City,
-			StatusCode:  recorder.statusCode,
-			DurationMs:  duration,
-			Headers:     SynthesizeHeaders(geoRec),
+			Method:          req.Method,
+			Path:            req.URL.Path,
+			ClientIP:        geoRec.IP,
+			Simulated:       geoRec.Simulated,
+			CountryCode:     geoRec.CountryCode,
+			CountryName:     geoRec.CountryName,
+			City:            geoRec.City,
+			StatusCode:      recorder.statusCode,
+			DurationMs:      duration,
+			InjectedLatency: latencyStr,
+			Headers:         SynthesizeHeaders(geoRec),
+			OriginalHeaders: origHeaders,
 		})
 	}
 }

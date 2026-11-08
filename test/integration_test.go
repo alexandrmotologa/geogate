@@ -113,6 +113,15 @@ func TestFullIntegrationSuite(t *testing.T) {
 		if capturedHeaders.Get("X-Geo-Currency") != "RON" {
 			t.Errorf("X-Geo-Currency = %q, want RON", capturedHeaders.Get("X-Geo-Currency"))
 		}
+		if capturedHeaders.Get("X-Geo-PPP-Factor") != "0.48" {
+			t.Errorf("X-Geo-PPP-Factor = %q, want 0.48", capturedHeaders.Get("X-Geo-PPP-Factor"))
+		}
+		if capturedHeaders.Get("X-Geo-PPP-Discount") != "52" {
+			t.Errorf("X-Geo-PPP-Discount = %q, want 52", capturedHeaders.Get("X-Geo-PPP-Discount"))
+		}
+		if capturedHeaders.Get("X-Geo-Connection-Type") != "residential" {
+			t.Errorf("X-Geo-Connection-Type = %q, want residential", capturedHeaders.Get("X-Geo-Connection-Type"))
+		}
 	})
 
 	// Test 3: Proxy request with cookie override
@@ -238,6 +247,65 @@ func TestFullIntegrationSuite(t *testing.T) {
 		body, _ := io.ReadAll(resp.Body)
 		if !bytes.Contains(body, []byte("<title>web</title>")) && !bytes.Contains(body, []byte("<!doctype html>")) {
 			t.Errorf("Expected HTML response from embedded Web UI, got %s", string(body[:min(100, len(body))]))
+		}
+	})
+
+	// Test 9: Purchasing Power Parity API
+	t.Run("API PPP Lookup /v1/ppp/RO", func(t *testing.T) {
+		resp, err := client.Get(gatewayServer.URL + "/v1/ppp/RO")
+		if err != nil {
+			t.Fatalf("PPP request failed: %v", err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			t.Fatalf("Expected 200 OK for PPP endpoint, got %d", resp.StatusCode)
+		}
+
+		var pppData map[string]interface{}
+		if err := json.NewDecoder(resp.Body).Decode(&pppData); err != nil {
+			t.Fatalf("Failed to parse PPP JSON: %v", err)
+		}
+
+		if pppData["country_code"] != "RO" {
+			t.Errorf("PPP country_code = %v, want RO", pppData["country_code"])
+		}
+		if pppData["recommended_discount"] != float64(52) {
+			t.Errorf("PPP discount = %v, want 52", pppData["recommended_discount"])
+		}
+	})
+
+	// Test 10: Proxy Request Replay Engine
+	t.Run("API Proxy Replay Engine /v1/proxy/replay", func(t *testing.T) {
+		replayReq := api.ReplayRequest{
+			Method:          "GET",
+			Path:            "/api/pricing",
+			SimulateCountry: "DE",
+		}
+		payload, _ := json.Marshal(replayReq)
+		resp, err := client.Post(gatewayServer.URL+"/v1/proxy/replay", "application/json", bytes.NewReader(payload))
+		if err != nil {
+			t.Fatalf("Replay request failed: %v", err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			t.Fatalf("Expected 200 OK for replay, got %d", resp.StatusCode)
+		}
+
+		var replayResp api.ReplayResponse
+		if err := json.NewDecoder(resp.Body).Decode(&replayResp); err != nil {
+			t.Fatalf("Failed to decode replay response: %v", err)
+		}
+
+		if !replayResp.Success {
+			t.Errorf("Expected replay to succeed, got error: %s", replayResp.Error)
+		}
+		if replayResp.SimulatedCountry != "DE" {
+			t.Errorf("Replay simulated country = %s, want DE", replayResp.SimulatedCountry)
+		}
+		if replayResp.InjectedHeaders["CF-IPCountry"] != "DE" {
+			t.Errorf("Injected header CF-IPCountry = %s, want DE", replayResp.InjectedHeaders["CF-IPCountry"])
 		}
 	})
 }

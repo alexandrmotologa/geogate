@@ -42,20 +42,38 @@ func (s *Synthesizer) GenerateForCountry(code string) (*GeoRecord, error) {
 		return nil, fmt.Errorf("unknown ISO country code: %s", code)
 	}
 
+	isDC := DatacenterASNs[info.DefaultASN]
+	isVPN := KnownVPNASNs[info.DefaultASN]
+	connType := "residential"
+	if isDC {
+		connType = "datacenter"
+	} else if isVPN {
+		connType = "vpn"
+	}
+
 	rec := &GeoRecord{
-		IP:            info.SampleIP,
-		CountryCode:   info.Code,
-		CountryName:   info.Name,
-		ContinentCode: info.Continent,
-		City:          info.Capital,
-		Latitude:      info.Latitude,
-		Longitude:     info.Longitude,
-		Timezone:      info.Timezone,
-		IsEU:          info.IsEU,
-		Currency:      info.Currency,
+		IP:             info.SampleIP,
+		CountryCode:    info.Code,
+		CountryName:    info.Name,
+		ContinentCode:  info.Continent,
+		City:           info.Capital,
+		Latitude:       info.Latitude,
+		Longitude:      info.Longitude,
+		Timezone:       info.Timezone,
+		IsEU:           info.IsEU,
+		Currency:       info.Currency,
+		PPPFactor:      info.PPPFactor,
+		PPPDiscount:    info.PPPDiscount,
+		ConnectionType: connType,
+		IsDatacenter:   isDC,
+		IsVPN:          isVPN,
+		IsTor:          false,
 		ASN: ASNRecord{
 			Number:       info.DefaultASN,
 			Organization: info.ASNOrg,
+			IsDatacenter: isDC,
+			IsVPN:        isVPN,
+			IsTor:        false,
 		},
 		Simulated: true,
 	}
@@ -90,20 +108,38 @@ func (s *Synthesizer) GenerateForCity(cityName string) (*GeoRecord, error) {
 		continent = info.Continent
 	}
 
+	isDC := DatacenterASNs[city.ASN]
+	isVPN := KnownVPNASNs[city.ASN]
+	connType := "residential"
+	if isDC {
+		connType = "datacenter"
+	} else if isVPN {
+		connType = "vpn"
+	}
+
 	rec := &GeoRecord{
-		IP:            city.SampleIP,
-		CountryCode:   city.CountryCode,
-		CountryName:   city.CountryName,
-		ContinentCode: continent,
-		City:          city.Name,
-		Latitude:      city.Latitude,
-		Longitude:     city.Longitude,
-		Timezone:      city.Timezone,
-		IsEU:          city.IsEU,
-		Currency:      city.Currency,
+		IP:             city.SampleIP,
+		CountryCode:    city.CountryCode,
+		CountryName:    city.CountryName,
+		ContinentCode:  continent,
+		City:           city.Name,
+		Latitude:       city.Latitude,
+		Longitude:      city.Longitude,
+		Timezone:       city.Timezone,
+		IsEU:           city.IsEU,
+		Currency:       city.Currency,
+		PPPFactor:      city.PPPFactor,
+		PPPDiscount:    city.PPPDiscount,
+		ConnectionType: connType,
+		IsDatacenter:   isDC,
+		IsVPN:          isVPN,
+		IsTor:          false,
 		ASN: ASNRecord{
 			Number:       city.ASN,
 			Organization: city.ASNOrg,
+			IsDatacenter: isDC,
+			IsVPN:        isVPN,
+			IsTor:        false,
 		},
 		Simulated: true,
 	}

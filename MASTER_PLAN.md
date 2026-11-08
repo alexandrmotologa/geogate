@@ -223,3 +223,11 @@ B:\workgit\geogate\
 - [x] Write production-ready documentation (`README.md`, `docs/ARCHITECTURE.md`, `docs/INTEGRATION_GUIDE.md`).
 - [x] Provide Dockerfile and multi-stage container build.
 - [x] Verify clean compilation and execution with zero placeholders or mockups.
+
+### Phase 6: Advanced Capabilities & Edge Intelligence
+- [x] Chaos Latency Injection Engine (`internal/proxy/latency.go` with Haversine distance and `?simulate_latency=auto|100ms|250ms`).
+- [x] Anti-Fraud & Security Intelligence Classification (`X-Geo-Connection-Type`, `X-Geo-Is-Datacenter`, `X-Geo-Is-Tor`, `X-Geo-Is-VPN`).
+- [x] Purchasing Power Parity (PPP) Engine (`X-Geo-PPP-Factor`, `X-Geo-PPP-Discount`, and `GET /v1/ppp/:country` endpoint).
+- [x] Proxy Replay Engine & Header Diff Viewer (`POST /v1/proxy/replay`, Header Diff drawer, and Replay modal in React 19 UI).
+- [x] Open DB Downloader CLI (`internal/geoip/downloader.go` and `geogate db download --dir ./data`).
+- [x] Declarative Configuration (`internal/config/config.go` with YAML/JSON support for custom CIDR routing rules).
