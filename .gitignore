@@ -1,0 +1,30 @@
+# Binaries
+/bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/geogate
+
+# Go build and test artifacts
+*.test
+*.out
+*.prof
+
+# Node & Frontend
+node_modules/
+.npm
+web/.vite/
+
+# Large MMDB files (except embedded/test ones)
+*.tar.gz
+*.zip
+data/downloads/
+
+# IDE / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
