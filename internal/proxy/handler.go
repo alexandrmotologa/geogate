@@ -64,7 +64,7 @@ func NewProxyHandler(upstream string, resolver *Resolver, hub *EventHub, interna
 // ServeHTTP handles requests, routing internal API / UI requests or forwarding to upstream.
 func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// Route internal GeoGate endpoints
-	if p.isInternalRoute(req.URL.Path) {
+	if p.isInternalRoute(req.URL.Path, req) {
 		if p.internalRouter != nil {
 			p.internalRouter.ServeHTTP(w, req)
 			return
@@ -147,13 +147,22 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-// isInternalRoute identifies endpoints reserved for GeoGate API, metrics, and cockpit studio.
-func (p *ProxyHandler) isInternalRoute(path string) bool {
+// isInternalRoute identifies endpoints reserved for GeoGate API, metrics, static assets, and cockpit studio.
+func (p *ProxyHandler) isInternalRoute(path string, req *http.Request) bool {
 	if strings.HasPrefix(path, "/v1/") ||
 		strings.HasPrefix(path, "/geogate/") ||
+		path == "/geogate" ||
+		strings.HasPrefix(path, "/assets/") ||
 		path == "/metrics" ||
 		path == "/health" ||
-		path == "/favicon.ico" {
+		path == "/favicon.ico" ||
+		path == "/favicon.svg" ||
+		path == "/icons.svg" ||
+		path == "/index.html" {
+		return true
+	}
+	// For root path, if there is no upstream or if the client requests HTML (browser visit), route to internal UI
+	if path == "/" && (p.reverseProxy == nil || strings.Contains(req.Header.Get("Accept"), "text/html")) {
 		return true
 	}
 	return false

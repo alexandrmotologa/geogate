@@ -75,6 +75,12 @@ func (s *Server) registerRoutes() {
 			}
 			fileServer.ServeHTTP(w, r)
 		})
+		s.mux.HandleFunc("/geogate", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/geogate/", http.StatusMovedPermanently)
+		})
+		s.mux.HandleFunc("/assets/", func(w http.ResponseWriter, r *http.Request) {
+			fileServer.ServeHTTP(w, r)
+		})
 		s.mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			if strings.HasPrefix(r.URL.Path, "/v1/") || r.URL.Path == "/metrics" || r.URL.Path == "/health" {
 				return

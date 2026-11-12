@@ -167,7 +167,7 @@ export const ProxyStream: React.FC<ProxyStreamProps> = ({ upstreamUrl }) => {
       </div>
 
       {/* Events Table / Stream */}
-      <div className="flex-1 overflow-y-auto mt-4 rounded-xl border border-slate-800/80 bg-slate-950/60 font-mono text-xs">
+      <div className="max-h-[330px] overflow-y-auto mt-4 rounded-xl border border-slate-800/80 bg-slate-950/60 font-mono text-xs">
         {events.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center p-8 text-center text-slate-500 space-y-2">
             <Activity className="w-8 h-8 text-slate-600 animate-bounce" />
