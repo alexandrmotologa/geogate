@@ -5,6 +5,8 @@
 <h1 align="center">GeoGate</h1>
 
 <p align="center">
+  <a href="https://github.com/alexandrmotologa/geogate/actions/workflows/ci.yml"><img src="https://github.com/alexandrmotologa/geogate/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/alexandrmotologa/geogate/releases"><img src="https://img.shields.io/badge/version-v1.0.0-6366f1.svg?style=flat-square" alt="Version" /></a>
   <img src="https://img.shields.io/badge/go-1.23+-00ADD8?style=flat-square&logo=go" alt="Go Version" />
   <img src="https://img.shields.io/badge/react-19-61DAFB?style=flat-square&logo=react" alt="React 19" />
   <img src="https://img.shields.io/badge/ram-<%2035MB-10B981?style=flat-square" alt="RAM Usage" />

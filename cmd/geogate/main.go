@@ -30,11 +30,19 @@ const (
 )
 
 func main() {
-	if len(os.Args) > 1 {
-		switch os.Args[1] {
-		case "version", "-v", "--version":
+	for _, arg := range os.Args[1:] {
+		if arg == "version" || arg == "--version" || arg == "-v" || arg == "-V" {
 			printVersion()
 			return
+		}
+		if arg == "help" || arg == "--help" || arg == "-h" {
+			printUsage()
+			return
+		}
+	}
+
+	if len(os.Args) > 1 {
+		switch os.Args[1] {
 		case "lookup":
 			runLookupCommand(os.Args[2:])
 			return
@@ -44,9 +52,6 @@ func main() {
 		case "db":
 			runDBCommand(os.Args[2:])
 			return
-		case "help", "-h", "--help":
-			printUsage()
-			return
 		}
 	}
 
@@ -54,7 +59,7 @@ func main() {
 }
 
 func printVersion() {
-	fmt.Printf("GeoGate %s (%s/%s, %s)\n", Version, runtime.GOOS, runtime.GOARCH, runtime.Version())
+	fmt.Printf("geogate v%s (%s/%s, %s)\n", Version, runtime.GOOS, runtime.GOARCH, runtime.Version())
 }
 
 func printUsage() {
